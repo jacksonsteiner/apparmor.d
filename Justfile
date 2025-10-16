@@ -187,14 +187,14 @@ local +names:
 		sed -i -e "s/rPx/rPUx/g" "{{build}}/apparmor.d/$file"
 		install -Dvm0644 "{{build}}/apparmor.d/$file" "{{destdir}}/etc/apparmor.d/$file"
 	done;
-	systemctl restart apparmor || sudo journalctl -xeu apparmor.service
+	systemctl restart apparmor || journalctl -xeu apparmor.service
 
 # Prebuild, install, and load a dev profile
 [group('install')]
 dev name:
 	go run ./cmd/prebuild --complain --file `find apparmor.d -iname {{name}}`
-	sudo install -Dm644 {{build}}/apparmor.d/{{name}} /etc/apparmor.d/{{name}}
-	sudo apparmor_parser --write-cache --replace /etc/apparmor.d/{{name}}
+	install -Dm644 {{build}}/apparmor.d/{{name}} /etc/apparmor.d/{{name}}
+	apparmor_parser --write-cache --replace /etc/apparmor.d/{{name}}
 
 # Build & install apparmor.d on Arch based systems
 [group('packages')]
@@ -205,13 +205,13 @@ pkg:
 [group('packages')]
 dpkg:
 	@bash dists/build.sh dpkg
-	@sudo dpkg -i {{pkgdest}}/{{pkgname}}_*.deb
+	@bash dpkg -i {{pkgdest}}/{{pkgname}}_*.deb
 
 # Build & install apparmor.d on OpenSUSE based systems
 [group('packages')]
 rpm:
 	@bash dists/build.sh rpm
-	@sudo rpm -ivh --force {{pkgdest}}/{{pkgname}}-*.rpm
+	@bash rpm -ivh --force {{pkgdest}}/{{pkgname}}-*.rpm
 
 # Run the linters
 [group('linter')]
@@ -349,13 +349,13 @@ ssh osinfo flavor:
 [group('vm')]
 mount osinfo flavor:
 	@ssh {{sshopt}} {{username}}@`just _get_ip {{osinfo}} {{flavor}}` \
-		sh -c 'mount | grep 0a31bc478ef8e2461a4b1cc10a24cc4 || sudo mount 0a31bc478ef8e2461a4b1cc10a24cc4'
+		sh -c 'mount | grep 0a31bc478ef8e2461a4b1cc10a24cc4 || mount 0a31bc478ef8e2461a4b1cc10a24cc4'
 
 # Unmout the shared directory on the machine
 [group('vm')]
 umount osinfo flavor:
 	@ssh {{sshopt}} {{username}}@`just _get_ip {{osinfo}} {{flavor}}` \
-		sh -c 'true; sudo umount /home/{{username}}/Projects/apparmor.d || true'
+		sh -c 'true; umount /home/{{username}}/Projects/apparmor.d || true'
 
 # List the machines
 [group('vm')]
@@ -424,7 +424,7 @@ autopkgtest-update dist version:
 	scp {{sshopt}} {{pkgdest}}/{{dist}}/{{version}}/{{pkgname}}_*.deb \
 		{{username}}@`just _get_ip {{dist}}{{version}} test`:/home/{{username}}/Projects/
 	ssh {{sshopt}} {{username}}@`just _get_ip {{dist}}{{version}} test` \
-		sudo dpkg -i /home/{{username}}/Projects/{{pkgname}}_*.deb
+		dpkg -i /home/{{username}}/Projects/{{pkgname}}_*.deb
 	just halt {{dist}}{{version}} test
 
 _autopkgtest-log-merge:
