@@ -205,13 +205,13 @@ pkg:
 [group('packages')]
 dpkg:
 	@bash dists/build.sh dpkg
-	@bash dpkg -i {{pkgdest}}/{{pkgname}}_*.deb
+	@sudo dpkg -i {{pkgdest}}/{{pkgname}}_*.deb
 
 # Build & install apparmor.d on OpenSUSE based systems
 [group('packages')]
 rpm:
 	@bash dists/build.sh rpm
-	@bash rpm -ivh --force {{pkgdest}}/{{pkgname}}-*.rpm
+	@sudo rpm -ivh --force {{pkgdest}}/{{pkgname}}-*.rpm
 
 # Run the linters
 [group('linter')]
