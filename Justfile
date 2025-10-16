@@ -8,7 +8,7 @@
 # Build settings
 
 destdir := "/"
-build := ".build"
+build := "../apparmor_pkg/.build"
 pkgdest := `pwd` / ".pkg"
 pkgname := "apparmor.d"
 gpgkey := "06A26D531D56C42D66805049C5469996F0DF68EC"
